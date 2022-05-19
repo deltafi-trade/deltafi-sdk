@@ -13,23 +13,36 @@ export function getClusterApiUrl(network: string) {
 }
 
 export function makeProvider(connection, wallet) {
-  return new AnchorProvider(connection, wallet, AnchorProvider.defaultOptions());
+  return new AnchorProvider(
+    connection,
+    wallet,
+    AnchorProvider.defaultOptions()
+  );
 }
 
 export function getDeltafiDexV2(
   programId: PublicKey,
-  provider: AnchorProvider = null,
+  provider: AnchorProvider = null
 ): Program<DeltafiDexV2> {
   const idl = JSON.parse(JSON.stringify(deltafiDexV2Idl));
-  return new Program(idl, programId, provider != null ? provider : AnchorProvider.local());
+  return new Program(
+    idl,
+    programId,
+    provider != null ? provider : AnchorProvider.local()
+  );
 }
 
-export async function createMarketConfig(program, pythProgramId, deltafiMint, adminKeypair) {
+export async function createMarketConfig(
+  program,
+  pythProgramId,
+  deltafiMint,
+  adminKeypair
+) {
   const seedKeyPair = web3.Keypair.generate();
   const deltafiTokenKeyPair = web3.Keypair.generate();
   const [marketConfig, bump] = await web3.PublicKey.findProgramAddress(
     [seedKeyPair.publicKey.toBuffer()],
-    program.programId,
+    program.programId
   );
 
   await program.rpc.createMarketConfig(bump, {
@@ -60,12 +73,12 @@ export async function createSwap(
   adminFeeTokenQuote: PublicKey,
   swapType: SwapType,
   swapConfig: SwapConfig,
-  adminKeypair: Keypair,
+  adminKeypair: Keypair
 ) {
   const seedKeypair = web3.Keypair.generate();
   const [swapInfo, swapBump] = await web3.PublicKey.findProgramAddress(
     [seedKeypair.publicKey.toBuffer()],
-    program.programId,
+    program.programId
   );
 
   const tokenBaseKeypair = web3.Keypair.generate();
@@ -106,7 +119,7 @@ export async function initSwap(
   swapType,
   pythPriceBase,
   pythPriceQuote,
-  adminKeypair,
+  adminKeypair
 ) {
   const swapInfoData = await program.account.swapInfo.fetch(swapInfo);
   const tokenBase = swapInfoData.tokenBase;
@@ -146,10 +159,16 @@ export async function initSwap(
   }
 }
 
-export async function createFarm(program, marketConfig, swapInfo, farmConfig, adminKeypair) {
+export async function createFarm(
+  program,
+  marketConfig,
+  swapInfo,
+  farmConfig,
+  adminKeypair
+) {
   const [farmInfo, farmBump] = await web3.PublicKey.findProgramAddress(
     [Buffer.from("FarmInfo", "utf-8"), swapInfo.toBuffer()],
-    program.programId,
+    program.programId
   );
   await program.rpc.createFarm(farmBump, farmConfig, {
     accounts: {
@@ -166,7 +185,13 @@ export async function createFarm(program, marketConfig, swapInfo, farmConfig, ad
   return farmInfo;
 }
 
-export async function updateSwapConfig(program, marketConfig, swapInfo, swapConfig, adminKeypair) {
+export async function updateSwapConfig(
+  program,
+  marketConfig,
+  swapInfo,
+  swapConfig,
+  adminKeypair
+) {
   await program.rpc.updateSwapConfig(swapConfig, {
     accounts: {
       marketConfig,
@@ -177,7 +202,13 @@ export async function updateSwapConfig(program, marketConfig, swapInfo, swapConf
   });
 }
 
-export async function updateFarmConfig(program, marketConfig, farmInfo, farmConfig, adminKeypair) {
+export async function updateFarmConfig(
+  program,
+  marketConfig,
+  farmInfo,
+  farmConfig,
+  adminKeypair
+) {
   await program.rpc.updateFarmConfig(farmConfig, {
     accounts: {
       marketConfig,
@@ -188,10 +219,19 @@ export async function updateFarmConfig(program, marketConfig, farmInfo, farmConf
   });
 }
 
-export async function getOrCreateLiquidityProvider(program, marketConfig, swapInfo, ownerKeypair) {
+export async function getOrCreateLiquidityProvider(
+  program,
+  marketConfig,
+  swapInfo,
+  ownerKeypair
+) {
   const [lpPublicKey, lpBump] = await PublicKey.findProgramAddress(
-    [Buffer.from("LiquidityProvider"), swapInfo.toBuffer(), ownerKeypair.publicKey.toBuffer()],
-    program.programId,
+    [
+      Buffer.from("LiquidityProvider"),
+      swapInfo.toBuffer(),
+      ownerKeypair.publicKey.toBuffer(),
+    ],
+    program.programId
   );
 
   const lp = await program.account.liquidityProvider.fetchNullable(lpPublicKey);
@@ -213,11 +253,21 @@ export async function getOrCreateLiquidityProvider(program, marketConfig, swapIn
   return lpPublicKey;
 }
 
-export async function createDeltafiUser(program, marketConfig, userKeypair, referrer = null) {
-  const [deltafiUserPubkey, deltafiUserBump] = await PublicKey.findProgramAddress(
-    [Buffer.from("User"), marketConfig.toBuffer(), userKeypair.publicKey.toBuffer()],
-    program.programId,
-  );
+export async function createDeltafiUser(
+  program,
+  marketConfig,
+  userKeypair,
+  referrer = null
+) {
+  const [deltafiUserPubkey, deltafiUserBump] =
+    await PublicKey.findProgramAddress(
+      [
+        Buffer.from("User"),
+        marketConfig.toBuffer(),
+        userKeypair.publicKey.toBuffer(),
+      ],
+      program.programId
+    );
 
   if (referrer == null) {
     await program.rpc.createDeltafiUser(deltafiUserBump, {

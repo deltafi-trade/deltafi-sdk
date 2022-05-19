@@ -1241,10 +1241,7 @@
           {
             "name": "reserved",
             "type": {
-              "array": [
-                "u64",
-                16
-              ]
+              "array": ["u64", 16]
             }
           }
         ]
@@ -1284,10 +1281,7 @@
           {
             "name": "reserved",
             "type": {
-              "array": [
-                "u64",
-                32
-              ]
+              "array": ["u64", 32]
             }
           }
         ]
@@ -1329,10 +1323,7 @@
           {
             "name": "reservedU64",
             "type": {
-              "array": [
-                "u64",
-                32
-              ]
+              "array": ["u64", 32]
             }
           }
         ]
@@ -1420,10 +1411,7 @@
           {
             "name": "reservedU64",
             "type": {
-              "array": [
-                "u64",
-                32
-              ]
+              "array": ["u64", 32]
             }
           }
         ]
@@ -1473,10 +1461,7 @@
           {
             "name": "reserved",
             "type": {
-              "array": [
-                "u64",
-                16
-              ]
+              "array": ["u64", 16]
             }
           }
         ]
@@ -1528,10 +1513,7 @@
           {
             "name": "reservedU64",
             "type": {
-              "array": [
-                "u64",
-                16
-              ]
+              "array": ["u64", 16]
             }
           }
         ]
@@ -1713,10 +1695,7 @@
           {
             "name": "reservedU64",
             "type": {
-              "array": [
-                "u64",
-                16
-              ]
+              "array": ["u64", 16]
             }
           }
         ]
