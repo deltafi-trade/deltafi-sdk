@@ -80,9 +80,7 @@ export type PriceStatus =
 
 export type CorpAction = { noCorpAct?: any };
 
-export type PriceType =
-  | { unknown?: any; price?: never }
-  | { unknown?: never; price?: any };
+export type PriceType = { unknown?: any; price?: never } | { unknown?: never; price?: any };
 
 export type SwapType =
   | { normalSwap?: any; stableSwap?: never }
