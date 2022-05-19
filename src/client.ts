@@ -21,16 +21,22 @@ import {
 } from "./utils";
 import { toBufferLE } from "bigint-buffer";
 
+
 /**
- * API that creates a deltafi swap transaction
- * @param walletPubkey
- * @param connection
- * @param inputTokenSymbol
- * @param outputTokenSymbol
- * @param inputTokenAmount
+ * PI that creates a deltafi swap transaction
+ * @param walletPubkey 
+ * @param connection 
+ * @param inputTokenMintPubkey 
+ * @param outputTokenMintPubkey 
+ * @param inputTokenAccountPubkey 
+ * @param outputTokenAccountPubkey 
+ * @param inputAmount 
+ * @param minOutputAmount 
+ * @param deployment 
+ * @returns 
  */
 export async function createSwapTransaction(
-  wallet: WalletContextState,
+  walletPubkey: PublicKey,
   connection: Connection,
   inputTokenMintPubkey: PublicKey,
   outputTokenMintPubkey: PublicKey,
@@ -40,7 +46,6 @@ export async function createSwapTransaction(
   minOutputAmount: string = "0",
   deployment: string = "mainnet-prod"
 ): Promise<Transaction> {
-  const { publicKey: walletPubkey } = wallet;
   const inputTokenDecimals = getTokenInfo(
     deployment,
     inputTokenAccountPubkey.toBase58()
@@ -58,7 +63,7 @@ export async function createSwapTransaction(
   );
   const program = getDeltafiDexV2(
     getProgramId(deployment),
-    makeProvider(connection, wallet)
+    makeProvider(connection, {})
   );
   const swapInfo: SwapInfo = await program.account.swapInfo.fetch(poolPubkey);
   const marketConfig = getMarketConfig(deployment);
