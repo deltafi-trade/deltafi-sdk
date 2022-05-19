@@ -1,6 +1,6 @@
-import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { Keypair, PublicKey, sendAndConfirmTransaction } from "@solana/web3.js";
 import { createSwapTransaction } from "./client";
-import { getConnection, sendSignedTransaction } from "./utils";
+import { getConnection } from "./utils";
 
 const exampleDeployment = "testnet";
 
@@ -20,34 +20,54 @@ const exampleUSDCTokenAccount = new PublicKey("J9ZWtE2vrSvEqLYsW3yEzAGSMvw2tFiVB
 const exampleUSDTTokenAccount = new PublicKey("G5JJmV4qAtEE2dDJABn4iZ2W4RhdNM3xCDHw5SP1pafK");
 
 const exampleTransactions = async () => {
+  // example transaction 1: sell USDC for USDT
   const exampleConnection = getConnection(exampleDeployment);
-  const transactionUSDCforUSDT = await createSwapTransaction(
-    exampleKeyPair.publicKey,
-    exampleConnection,
-    exampleUSDCMint,
-    exampleUSDTMint,
-    exampleUSDCTokenAccount,
-    exampleUSDTTokenAccount,
-    "12.3",
-    "10",
-    exampleDeployment,
-  );
-
-  transactionUSDCforUSDT.sign(exampleKeyPair);
+  const { transaction: transactionUSDCforUSDT, userTransferAuthority: tmpAuthorityA } =
+    await createSwapTransaction(
+      exampleKeyPair.publicKey,
+      exampleConnection,
+      exampleUSDCMint,
+      exampleUSDTMint,
+      exampleUSDCTokenAccount,
+      exampleUSDTTokenAccount,
+      "12.3",
+      "10",
+      exampleDeployment,
+    );
 
   try {
-    const signature = await sendSignedTransaction({
-      signedTransaction: transactionUSDCforUSDT,
-      connection: exampleConnection,
-    });
-
-    console.log("transaction succeeded with signature: " + signature);
-  } catch(e) {
-    console.info("transaction failed with error: " + e);
+    const signature = await sendAndConfirmTransaction(exampleConnection, transactionUSDCforUSDT, [
+      tmpAuthorityA,
+      exampleKeyPair,
+    ]);
+    console.log("transaction USDC -> USDT succeeded with signature: " + signature);
+  } catch (e) {
+    console.info("transaction USDC -> USDT failed with error: " + e);
   }
-  
+
+  // example transaction 2: sell USDT for USDC
+  const { transaction: transactionUSDTforUSDC, userTransferAuthority: tmpAuthorityB } =
+    await createSwapTransaction(
+      exampleKeyPair.publicKey,
+      exampleConnection,
+      exampleUSDTMint,
+      exampleUSDCMint,
+      exampleUSDTTokenAccount,
+      exampleUSDCTokenAccount,
+      "15.3",
+      "10",
+      exampleDeployment,
+    );
+
+  try {
+    const signature = await sendAndConfirmTransaction(exampleConnection, transactionUSDTforUSDC, [
+      tmpAuthorityB,
+      exampleKeyPair,
+    ]);
+    console.log("transaction USDT -> USDC succeeded with signature: " + signature);
+  } catch (e) {
+    console.info("transaction USDT -> USDC failed with error: " + e);
+  }
 };
 
 exampleTransactions();
-
-console.log("jello");

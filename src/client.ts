@@ -44,7 +44,7 @@ export async function createSwapTransaction(
   inputAmount: string,
   minOutputAmount: string = "0",
   deployment: string = "mainnet-prod",
-): Promise<Transaction> {
+): Promise<any> {
   const inputTokenDecimals = getTokenInfo(deployment, inputTokenMintPubkey.toBase58()).decimals;
   const inputAmountBigInt: bigint = BigInt(
     exponentiate(inputAmount, inputTokenDecimals).toFixed(0),
@@ -73,7 +73,7 @@ export async function createSwapTransaction(
       u64.fromBuffer(toBufferLE(inputAmountBigInt, 8)),
     ),
   );
-  
+
   const signers = [userTransferAuthority];
 
   const [deltafiUserPubkey, deltafiUserBump] = await PublicKey.findProgramAddress(
@@ -166,7 +166,8 @@ export async function createSwapTransaction(
   ]);
   transaction.recentBlockhash = (await connection.getLatestBlockhash("max")).blockhash;
   transaction.feePayer = walletPubkey;
-  transaction.partialSign(userTransferAuthority);
+  // transaction.partialSign(userTransferAuthority);
 
-  return transaction;
+  // return transaction;
+  return { transaction, userTransferAuthority };
 }
