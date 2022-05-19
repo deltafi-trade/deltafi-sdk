@@ -1,4 +1,5 @@
 import { Keypair, PublicKey, sendAndConfirmTransaction } from "@solana/web3.js";
+import { exit } from "process";
 import { createSwapTransaction } from "./client";
 import { getConnection } from "./utils";
 
@@ -40,9 +41,10 @@ const exampleTransactions = async () => {
       tmpAuthorityA,
       exampleKeyPair,
     ]);
-    console.log("transaction USDC -> USDT succeeded with signature: " + signature);
+    console.info("transaction USDC -> USDT succeeded with signature: " + signature);
   } catch (e) {
     console.info("transaction USDC -> USDT failed with error: " + e);
+    exit(1);
   }
 
   // example transaction 2: sell USDT for USDC
@@ -64,9 +66,10 @@ const exampleTransactions = async () => {
       tmpAuthorityB,
       exampleKeyPair,
     ]);
-    console.log("transaction USDT -> USDC succeeded with signature: " + signature);
+    console.info("transaction USDT -> USDC succeeded with signature: " + signature);
   } catch (e) {
     console.info("transaction USDT -> USDC failed with error: " + e);
+    exit(1);
   }
 };
 
