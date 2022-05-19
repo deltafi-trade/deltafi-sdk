@@ -2142,8 +2142,5 @@
       "name": "StableSwapPriceDiffLimitExceeded",
       "msg": "stable swap price diff limit exceeded"
     }
-  ],
-  "metadata": {
-    "address": "HcWvS1XyweYMrCvY8TEeDxXgbWJagizUZXxCSLC2E89N"
-  }
+  ]
 }
