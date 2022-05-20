@@ -166,8 +166,6 @@ export async function createSwapTransaction(
   ]);
   transaction.recentBlockhash = (await connection.getLatestBlockhash("max")).blockhash;
   transaction.feePayer = walletPubkey;
-  // transaction.partialSign(userTransferAuthority);
 
-  // return transaction;
   return { transaction, userTransferAuthority };
 }
