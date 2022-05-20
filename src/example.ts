@@ -43,7 +43,7 @@ const exampleTransactions = async () => {
     ]);
     console.info("transaction USDC -> USDT succeeded with signature: " + signature);
   } catch (e) {
-    console.info("transaction USDC -> USDT failed with error: " + e);
+    console.error("transaction USDC -> USDT failed with error: " + e);
     exit(1);
   }
 
@@ -68,7 +68,7 @@ const exampleTransactions = async () => {
     ]);
     console.info("transaction USDT -> USDC succeeded with signature: " + signature);
   } catch (e) {
-    console.info("transaction USDT -> USDC failed with error: " + e);
+    console.error("transaction USDT -> USDC failed with error: " + e);
     exit(1);
   }
 };
