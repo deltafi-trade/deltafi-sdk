@@ -84,4 +84,5 @@ const exampleTransactions = async () => {
   }
 };
 
+// run the example transaction logic
 exampleTransactions();
