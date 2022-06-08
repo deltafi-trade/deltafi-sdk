@@ -24,6 +24,10 @@ export function getPoolConfig(deployConfig, poolName) {
   return deployConfig.poolInfoList.find(({name}) => poolName === name);
 }
 
+export function getTokenConfig(deployConfig, tokenSymbol) {
+  return deployConfig.tokenInfoList.find(({symbol}) => symbol === tokenSymbol);
+}
+
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }

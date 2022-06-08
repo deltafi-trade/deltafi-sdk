@@ -46,8 +46,10 @@ export async function createSwapTransaction(
   deployment: string = "mainnet-prod",
   deployConfig,
   poolConfig,
+  inputTokenConfig,
+  outputTokenConfig,
 ): Promise<any> {
-  const inputTokenDecimals = getTokenInfo(deployment, inputTokenMintPubkey.toBase58()).decimals;
+  const inputTokenDecimals = inputTokenConfig.decimals;
   const inputAmountBigInt: bigint = BigInt(
     exponentiate(inputAmount, inputTokenDecimals).toFixed(0),
   );
