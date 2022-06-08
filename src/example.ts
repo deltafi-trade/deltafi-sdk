@@ -1,7 +1,7 @@
 import { clusterApiUrl, Connection, Keypair, PublicKey, sendAndConfirmTransaction } from "@solana/web3.js";
 import { exit } from "process";
 import { createSwapTransaction } from "./client";
-import { getConnection, getDeploymentConfig, getOrCreateAssociatedAccountInfo, readKeypair } from "./utils";
+import { getConnection, getDeploymentConfig, getOrCreateAssociatedAccountInfo, getPoolConfig, readKeypair } from "./utils";
 import { Command } from "commander";
 
 // these are mocked USDC and USDT mint for testnet
@@ -27,6 +27,8 @@ const runExample = async (keypairFilePath: string, exampleDeployment: string) =>
   }
 
   const deployConfig = getDeploymentConfig(exampleDeployment);
+  const poolConfig = getPoolConfig(deployConfig, "USDC-USDT");
+  console.info(poolConfig);
 
   const [usdcTokenMint, usdtTokenMint] =
     exampleDeployment === "testnet"

@@ -20,6 +20,10 @@ export function getDeploymentConfig(deployment: string) {
   return deploymentConfig;
 }
 
+export function getPoolConfig(deployConfig, poolName) {
+  return deployConfig.poolInfoList.find(({name}) => poolName === name);
+}
+
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
