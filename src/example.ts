@@ -67,6 +67,7 @@ const runExample = async (keypairFilePath: string, exampleDeployment: string) =>
       "1",
       "0.9",
       exampleDeployment,
+      deployConfig,
       poolConfig,
     );
 
@@ -95,6 +96,7 @@ const runExample = async (keypairFilePath: string, exampleDeployment: string) =>
       "1",
       "0.9",
       exampleDeployment,
+      deployConfig,
       poolConfig,
     );
 
