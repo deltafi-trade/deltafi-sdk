@@ -1,7 +1,19 @@
-import { clusterApiUrl, Connection, Keypair, PublicKey, sendAndConfirmTransaction } from "@solana/web3.js";
+import {
+  clusterApiUrl,
+  Connection,
+  Keypair,
+  PublicKey,
+  sendAndConfirmTransaction,
+} from "@solana/web3.js";
 import { exit } from "process";
 import { createSwapTransaction } from "./client";
-import { getDeploymentConfig, getOrCreateAssociatedAccountInfo, getPoolConfig, getTokenConfig, readKeypair } from "./utils";
+import {
+  getDeploymentConfig,
+  getOrCreateAssociatedAccountInfo,
+  getPoolConfig,
+  getTokenConfig,
+  readKeypair,
+} from "./utils";
 import { Command } from "commander";
 
 // the example transaction logic
@@ -56,7 +68,7 @@ const runExample = async (keypairFilePath: string, network: string) => {
       deployConfig,
       poolConfig,
       usdcTokenConfig,
-      usdtTokenConfig
+      usdtTokenConfig,
     );
 
   try {

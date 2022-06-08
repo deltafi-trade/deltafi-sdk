@@ -1,12 +1,4 @@
-import {
-  clusterApiUrl,
-  Commitment,
-  Connection,
-  PublicKey,
-  Transaction,
-  Keypair,
-  Signer,
-} from "@solana/web3.js";
+import { Connection, PublicKey, Transaction, Keypair, Signer } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import fullDeployConfigV2 from "./anchor/fullDeployConfigV2.json";
 import * as fs from "fs";
@@ -21,11 +13,11 @@ export function getDeploymentConfig(deployment: string) {
 }
 
 export function getPoolConfig(deployConfig, poolName) {
-  return deployConfig.poolInfoList.find(({name}) => poolName === name);
+  return deployConfig.poolInfoList.find(({ name }) => poolName === name);
 }
 
 export function getTokenConfig(deployConfig, tokenSymbol) {
-  return deployConfig.tokenInfoList.find(({symbol}) => symbol === tokenSymbol);
+  return deployConfig.tokenInfoList.find(({ symbol }) => symbol === tokenSymbol);
 }
 
 export function sleep(ms: number): Promise<void> {
@@ -44,24 +36,6 @@ export function mergeTransactions(transactions: (Transaction | undefined)[]) {
 
 export function exponentiate(num: BigNumber | string, decimals: number): BigNumber {
   return new BigNumber(num).multipliedBy(new BigNumber(`1e+${decimals}`));
-}
-
-export function getConnection(deployment: string, commitment: Commitment = "confirmed") {
-  const deploymentConfig = getDeploymentConfig(deployment);
-  return new Connection(clusterApiUrl(deploymentConfig.network), commitment);
-}
-
-export function getTokenInfo(deployment: string, tokenMintAddress: string) {
-  const deploymentConfig = getDeploymentConfig(deployment);
-  const tokenConfig = deploymentConfig.tokenInfoList.find(
-    (tokenInfo) => tokenInfo.mint === tokenMintAddress,
-  );
-
-  if (!tokenConfig) {
-    throw Error("Invalid token mint: " + tokenMintAddress);
-  }
-
-  return tokenConfig;
 }
 
 export const readKeypair = (path: string) => {

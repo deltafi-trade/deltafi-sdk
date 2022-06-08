@@ -10,11 +10,7 @@ import {
 } from "@solana/web3.js";
 import { getDeltafiDexV2, makeProvider } from "./anchor/anchor_utils";
 import { DeltafiUser, SwapInfo } from "./anchor/type_definitions";
-import {
-  exponentiate,
-  getTokenInfo,
-  mergeTransactions,
-} from "./utils";
+import { exponentiate, mergeTransactions } from "./utils";
 import { toBufferLE } from "bigint-buffer";
 import { BN } from "@project-serum/anchor";
 
@@ -53,8 +49,11 @@ export async function createSwapTransaction(
   const minOutputAmountBigInt: bigint = BigInt(
     exponentiate(minOutputAmount, inputTokenDecimals).toFixed(0),
   );
-  const program = getDeltafiDexV2(new PublicKey(deployConfig.programId), makeProvider(connection, {}));
-  const poolPubkey = new PublicKey(poolConfig.swapInfo)
+  const program = getDeltafiDexV2(
+    new PublicKey(deployConfig.programId),
+    makeProvider(connection, {}),
+  );
+  const poolPubkey = new PublicKey(poolConfig.swapInfo);
   const swapInfo: SwapInfo = await program.account.swapInfo.fetch(poolPubkey);
   const marketConfig = new PublicKey(deployConfig.marketConfig);
 
