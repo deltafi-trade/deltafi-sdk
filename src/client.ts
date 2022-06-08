@@ -47,6 +47,7 @@ export async function createSwapTransaction(
   inputAmount: string,
   minOutputAmount: string = "0",
   deployment: string = "mainnet-prod",
+  poolConfig,
 ): Promise<any> {
   const inputTokenDecimals = getTokenInfo(deployment, inputTokenMintPubkey.toBase58()).decimals;
   const inputAmountBigInt: bigint = BigInt(
@@ -55,12 +56,8 @@ export async function createSwapTransaction(
   const minOutputAmountBigInt: bigint = BigInt(
     exponentiate(minOutputAmount, inputTokenDecimals).toFixed(0),
   );
-  const poolPubkey: PublicKey = parsePoolInfoFromMintPair(
-    deployment,
-    inputTokenMintPubkey.toBase58(),
-    outputTokenMintPubkey.toBase58(),
-  );
   const program = getDeltafiDexV2(getProgramId(deployment), makeProvider(connection, {}));
+  const poolPubkey = new PublicKey(poolConfig.swapInfo)
   const swapInfo: SwapInfo = await program.account.swapInfo.fetch(poolPubkey);
   const marketConfig = getMarketConfig(deployment);
 
