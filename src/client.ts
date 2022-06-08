@@ -12,11 +12,8 @@ import { getDeltafiDexV2, makeProvider } from "./anchor/anchor_utils";
 import { DeltafiUser, SwapInfo } from "./anchor/type_definitions";
 import {
   exponentiate,
-  getMarketConfig,
-  getProgramId,
   getTokenInfo,
   mergeTransactions,
-  parsePoolInfoFromMintPair,
 } from "./utils";
 import { toBufferLE } from "bigint-buffer";
 import { BN } from "@project-serum/anchor";
@@ -60,7 +57,7 @@ export async function createSwapTransaction(
   const program = getDeltafiDexV2(new PublicKey(deployConfig.programId), makeProvider(connection, {}));
   const poolPubkey = new PublicKey(poolConfig.swapInfo)
   const swapInfo: SwapInfo = await program.account.swapInfo.fetch(poolPubkey);
-  const marketConfig = getMarketConfig(deployment);
+  const marketConfig = new PublicKey(deployConfig.marketConfig);
 
   const userTransferAuthority = Keypair.generate();
   const transactionApprove: Transaction = new Transaction();

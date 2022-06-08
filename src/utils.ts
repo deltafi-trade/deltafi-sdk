@@ -47,16 +47,6 @@ export function getConnection(deployment: string, commitment: Commitment = "conf
   return new Connection(clusterApiUrl(deploymentConfig.network), commitment);
 }
 
-export function getProgramId(deployment: string) {
-  const deploymentConfig = getDeploymentConfig(deployment);
-  return new PublicKey(deploymentConfig.programId);
-}
-
-export function getMarketConfig(deployment: string) {
-  const deploymentConfig = getDeploymentConfig(deployment);
-  return new PublicKey(deploymentConfig.marketConfig);
-}
-
 export function getTokenInfo(deployment: string, tokenMintAddress: string) {
   const deploymentConfig = getDeploymentConfig(deployment);
   const tokenConfig = deploymentConfig.tokenInfoList.find(
@@ -68,37 +58,6 @@ export function getTokenInfo(deployment: string, tokenMintAddress: string) {
   }
 
   return tokenConfig;
-}
-
-export function parsePoolInfoFromMintPair(
-  deployment: string,
-  inputTokenMintAddress: string,
-  outPutTokenMintAddress: string,
-) {
-  const deploymentConfig = fullDeployConfigV2[deployment];
-  if (!deploymentConfig) {
-    throw Error("Invalid deployment: " + deployment);
-  }
-
-  const inputTokenSymbol: string = deploymentConfig.tokenInfoList.find(
-    (tokenInfo) => tokenInfo.mint === inputTokenMintAddress,
-  )?.symbol;
-
-  const outputTokenSymbol: string = deploymentConfig.tokenInfoList.find(
-    (tokenInfo) => tokenInfo.mint === outPutTokenMintAddress,
-  )?.symbol;
-
-  const poolAddress = deploymentConfig.poolInfoList.find(
-    (poolInfo) =>
-      (poolInfo.base === inputTokenSymbol && poolInfo.quote === outputTokenSymbol) ||
-      (poolInfo.base === outputTokenSymbol && poolInfo.quote === inputTokenSymbol),
-  ).swapInfo;
-
-  if (!poolAddress) {
-    throw Error("Invalid token pair: " + inputTokenMintAddress + " " + outPutTokenMintAddress);
-  }
-
-  return new PublicKey(poolAddress);
 }
 
 export const readKeypair = (path: string) => {
