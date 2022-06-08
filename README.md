@@ -19,7 +19,9 @@ You can also use your own keypair on mainnet-beta to swap between `USDC` and `US
 yarn ts-node src/example/example.ts run -k <your_keypair> -n mainnet-beta
 ```
 
-The config in this repo may not be up to date. You can read the latest config with our public api
+The config in this repo may not be up to date. You can read the latest config with our public api.
 ```
 yarn ts-node src/example/example.ts get-config
 ```
+The response will contain all available swap pools.
+
