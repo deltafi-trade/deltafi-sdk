@@ -30,30 +30,27 @@ const runExample = async (keypairFilePath: string, exampleDeployment: string) =>
   const poolConfig = getPoolConfig(deployConfig, "USDC-USDT");
   console.info(poolConfig);
 
-  const [usdcTokenMint, usdtTokenMint] =
-    exampleDeployment === "testnet"
-      ? [mockedUSDCMint, mockedUSDTMint]
-      : [realUSDCMint, realUSDTMint];
+  const usdcMint = new PublicKey(poolConfig.mintBase);
+  const usdtMint = new PublicKey(poolConfig.mintQuote);
 
-  keypairFilePath = keypairFilePath || "src/keypairs/exampleKeypair.json";
-  const exampleKeyPair = readKeypair(keypairFilePath);
-  const exampleConnection = new Connection(clusterApiUrl(deployConfig.network), "confirmed");
+  const keyPair = readKeypair(keypairFilePath);
+  const connection = new Connection(clusterApiUrl(deployConfig.network), "confirmed");
 
   // get USDC/USDT token account from the wallet
-  const exampleUSDCTokenAccount = (
+  const usdcTokenAccount = (
     await getOrCreateAssociatedAccountInfo(
-      exampleConnection,
-      exampleKeyPair,
-      usdcTokenMint,
-      exampleKeyPair.publicKey,
+      connection,
+      keyPair,
+      usdcMint,
+      keyPair.publicKey,
     )
   ).address;
-  const exampleUSDTTokenAccount = (
+  const usdtTokenAccount = (
     await getOrCreateAssociatedAccountInfo(
-      exampleConnection,
-      exampleKeyPair,
-      usdtTokenMint,
-      exampleKeyPair.publicKey,
+      connection,
+      keyPair,
+      usdtMint,
+      keyPair.publicKey,
     )
   ).address;
 
@@ -61,12 +58,12 @@ const runExample = async (keypairFilePath: string, exampleDeployment: string) =>
   console.info("transaction 1: sell 1 USDC for USDT");
   const { transaction: transactionUSDCforUSDT, userTransferAuthority: tmpAuthorityA } =
     await createSwapTransaction(
-      exampleKeyPair.publicKey,
-      exampleConnection,
-      usdcTokenMint,
-      usdtTokenMint,
-      exampleUSDCTokenAccount,
-      exampleUSDTTokenAccount,
+      keyPair.publicKey,
+      connection,
+      usdcMint,
+      usdtMint,
+      usdcTokenAccount,
+      usdtTokenAccount,
       "1",
       "0.9",
       exampleDeployment,
@@ -74,9 +71,9 @@ const runExample = async (keypairFilePath: string, exampleDeployment: string) =>
 
   try {
     // may use wallet sdk for signature in application
-    const signature = await sendAndConfirmTransaction(exampleConnection, transactionUSDCforUSDT, [
+    const signature = await sendAndConfirmTransaction(connection, transactionUSDCforUSDT, [
       tmpAuthorityA,
-      exampleKeyPair,
+      keyPair,
     ]);
     console.info("transaction USDC -> USDT succeeded with signature: " + signature);
   } catch (e) {
@@ -88,12 +85,12 @@ const runExample = async (keypairFilePath: string, exampleDeployment: string) =>
   console.info("transaction 2: sell 1 USDT for USDC");
   const { transaction: transactionUSDTforUSDC, userTransferAuthority: tmpAuthorityB } =
     await createSwapTransaction(
-      exampleKeyPair.publicKey,
-      exampleConnection,
-      usdtTokenMint,
-      usdcTokenMint,
-      exampleUSDTTokenAccount,
-      exampleUSDCTokenAccount,
+      keyPair.publicKey,
+      connection,
+      usdtMint,
+      usdcMint,
+      usdtTokenAccount,
+      usdcTokenAccount,
       "1",
       "0.9",
       exampleDeployment,
@@ -101,9 +98,9 @@ const runExample = async (keypairFilePath: string, exampleDeployment: string) =>
 
   try {
     // may use wallet sdk for signature in application
-    const signature = await sendAndConfirmTransaction(exampleConnection, transactionUSDTforUSDC, [
+    const signature = await sendAndConfirmTransaction(connection, transactionUSDTforUSDC, [
       tmpAuthorityB,
-      exampleKeyPair,
+      keyPair,
     ]);
     console.info("transaction USDT -> USDC succeeded with signature: " + signature);
   } catch (e) {
