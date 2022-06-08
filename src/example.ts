@@ -1,7 +1,7 @@
-import { Keypair, PublicKey, sendAndConfirmTransaction } from "@solana/web3.js";
+import { clusterApiUrl, Connection, Keypair, PublicKey, sendAndConfirmTransaction } from "@solana/web3.js";
 import { exit } from "process";
 import { createSwapTransaction } from "./client";
-import { getConnection, getOrCreateAssociatedAccountInfo, readKeypair } from "./utils";
+import { getConnection, getDeploymentConfig, getOrCreateAssociatedAccountInfo, readKeypair } from "./utils";
 import { Command } from "commander";
 
 // these are mocked USDC and USDT mint for testnet
@@ -21,16 +21,12 @@ const realUSDTMint = new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB
 // directly with the wallet keypair
 // in actually application, we should use wallet sdk for the signature
 const runExample = async (keypairFilePath: string, exampleDeployment: string) => {
-  if (exampleDeployment === undefined) {
-    exampleDeployment = "testnet";
-  } else if (
-    exampleDeployment !== "testnet" &&
-    exampleDeployment !== "mainnet-test" &&
-    exampleDeployment !== "mainnet-prod"
-  ) {
+  if (exampleDeployment !== "testnet" && exampleDeployment !== "mainnet-prod") {
     console.error("wrong deployment mode!");
     exit(1);
   }
+
+  const deployConfig = getDeploymentConfig(exampleDeployment);
 
   const [usdcTokenMint, usdtTokenMint] =
     exampleDeployment === "testnet"
@@ -39,7 +35,7 @@ const runExample = async (keypairFilePath: string, exampleDeployment: string) =>
 
   keypairFilePath = keypairFilePath || "src/keypairs/exampleKeypair.json";
   const exampleKeyPair = readKeypair(keypairFilePath);
-  const exampleConnection = getConnection(exampleDeployment);
+  const exampleConnection = new Connection(clusterApiUrl(deployConfig.network), "confirmed");
 
   // get USDC/USDT token account from the wallet
   const exampleUSDCTokenAccount = (
