@@ -15,6 +15,7 @@ import {
   readKeypair,
 } from "./utils";
 import { Command } from "commander";
+import * as https from "https";
 
 // the example transaction logic
 // this function established 2 transaction, first sell USDC for USDT and second sell USDT for USDC
@@ -112,6 +113,8 @@ const runExample = async (keypairFilePath: string, network: string) => {
   }
 };
 
+const getConfig = async () => {};
+
 const main = () => {
   const program = new Command();
   program
@@ -121,6 +124,29 @@ const main = () => {
     .action(async (option) => {
       runExample(option.keypair, option.network);
     });
+
+  program.command("get-config").action(async () => {
+    const https = require("https");
+    const options = {
+      hostname: "app.deltafi.trade",
+      port: 443,
+      path: "/api/config",
+      method: "GET",
+    };
+
+    const req = https.request(options, (res) => {
+      console.log(`statusCode: ${res.statusCode}`);
+      res.on("data", (d) => {
+        process.stdout.write(d);
+      });
+    });
+
+    req.on("error", (error) => {
+      console.error(error);
+    });
+
+    req.end();
+  });
 
   program.parse(process.argv);
 };
