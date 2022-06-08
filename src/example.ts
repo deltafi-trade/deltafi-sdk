@@ -69,8 +69,8 @@ const exampleTransactions = async (keypairFilePath: string, exampleDeployment: s
       usdtTokenMint,
       exampleUSDCTokenAccount,
       exampleUSDTTokenAccount,
-      "12.3",
-      "10",
+      "1",
+      "0.9",
       exampleDeployment,
     );
 
@@ -92,12 +92,12 @@ const exampleTransactions = async (keypairFilePath: string, exampleDeployment: s
     await createSwapTransaction(
       exampleKeyPair.publicKey,
       exampleConnection,
-      usdcTokenMint,
       usdtTokenMint,
+      usdcTokenMint,
       exampleUSDTTokenAccount,
       exampleUSDCTokenAccount,
-      "15.3",
-      "10",
+      "1",
+      "0.9",
       exampleDeployment,
     );
 
