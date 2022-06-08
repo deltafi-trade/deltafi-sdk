@@ -17,3 +17,7 @@ You can also use your own keypair on mainnet-beta
 yarn ts-node src/example/example.ts run -k <your_keypair> -n mainnet-beta
 ```
 
+The config in this repo may be up to date. You can read the latest config with the public api.
+```
+yarn ts-node src/example/example.ts get-config
+```

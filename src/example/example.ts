@@ -135,9 +135,9 @@ const main = () => {
     };
 
     const req = https.request(options, (res) => {
-      console.log(`statusCode: ${res.statusCode}`);
       res.on("data", (data) => {
-        console.log(Buffer.from(data).toString());
+        // pretty print the config json
+        console.log(JSON.stringify(JSON.parse(Buffer.from(data).toString()), null, 2));
       });
     });
 
