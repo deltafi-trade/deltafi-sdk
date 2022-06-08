@@ -60,7 +60,7 @@ const exampleTransactions = async (keypairFilePath: string, exampleDeployment: s
   ).address;
 
   // example transaction 1: sell USDC for USDT
-  console.info("transaction 1: sell USDC for USDT");
+  console.info("transaction 1: sell 1 USDC for USDT");
   const { transaction: transactionUSDCforUSDT, userTransferAuthority: tmpAuthorityA } =
     await createSwapTransaction(
       exampleKeyPair.publicKey,
@@ -87,7 +87,7 @@ const exampleTransactions = async (keypairFilePath: string, exampleDeployment: s
   }
 
   // example transaction 2: sell USDT for USDC
-  console.info("transaction 2: sell USDT for USDC");
+  console.info("transaction 2: sell 1 USDT for USDC");
   const { transaction: transactionUSDTforUSDC, userTransferAuthority: tmpAuthorityB } =
     await createSwapTransaction(
       exampleKeyPair.publicKey,
