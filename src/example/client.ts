@@ -8,8 +8,8 @@ import {
   SYSVAR_RENT_PUBKEY,
   Transaction,
 } from "@solana/web3.js";
-import { getDeltafiDexV2, makeProvider } from "./anchor/anchor_utils";
-import { DeltafiUser, SwapInfo } from "./anchor/type_definitions";
+import { getDeltafiDexV2, makeProvider } from "../anchor/anchor_utils";
+import { DeltafiUser, SwapInfo } from "../anchor/type_definitions";
 import { exponentiate, mergeTransactions } from "./utils";
 import { toBufferLE } from "bigint-buffer";
 import { BN } from "@project-serum/anchor";
@@ -21,13 +21,10 @@ import { BN } from "@project-serum/anchor";
  * this API only handles the swaps between 2 spl-tokens, it doesn't handle the native SOL swap
  * @param {PublicKey} walletPubkey the public key of the user's wallet
  * @param {Connection} connection the web3 connection for rpc calls
- * @param {PublicKey} inputTokenMintPubkey mint address of the input(selling) token, this must match inputTokenAccountPubkey
- * @param {PublicKey} outputTokenMintPubkey mint address of the output(buying) token, this must match outputTokenAccountPubkey
  * @param {PublicKey} inputTokenAccountPubkey token account of the input(selling) token, the owner must be walletPubkey
  * @param {PublicKey} outputTokenAccountPubkey token account of the output(buying) token, the owner must be walletPubkey
  * @param {string} inputAmount amount of the input token to be sold
  * @param {string} minOutputAmount minimum amout of the output token to get, common practice to prevent high slippage. It is 0 by defaul
- * @param {string} deployment deltafi's deployment config. In production this must be mainnet-prod, which is also the default. In the example we use testnet for demo
  * @returns { transaction, userTransferAuthority } generated transaction and a temporary authority keypair. userTransferAuthority must be used for signing the transaction
  */
 export async function createSwapTransaction(

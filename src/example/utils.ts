@@ -1,6 +1,6 @@
 import { Connection, PublicKey, Transaction, Keypair, Signer } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
-import fullDeployConfigV2 from "./anchor/fullDeployConfigV2.json";
+import fullDeployConfigV2 from "../anchor/fullDeployConfigV2.json";
 import * as fs from "fs";
 import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
