@@ -136,8 +136,8 @@ const main = () => {
 
     const req = https.request(options, (res) => {
       console.log(`statusCode: ${res.statusCode}`);
-      res.on("data", (d) => {
-        process.stdout.write(d);
+      res.on("data", (data) => {
+        console.log(Buffer.from(data).toString());
       });
     });
 
