@@ -125,6 +125,4 @@ const main = () => {
   program.parse(process.argv);
 };
 
-// run the example transaction logic
-// exampleTransactions();
 main();
