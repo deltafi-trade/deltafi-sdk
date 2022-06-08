@@ -28,7 +28,7 @@ const runExample = async (keypairFilePath: string, exampleDeployment: string) =>
 
   const deployConfig = getDeploymentConfig(exampleDeployment);
   const poolConfig = getPoolConfig(deployConfig, "USDC-USDT");
-  console.info(poolConfig);
+  console.info("pool config:", poolConfig);
 
   const usdcMint = new PublicKey(poolConfig.mintBase);
   const usdtMint = new PublicKey(poolConfig.mintQuote);
