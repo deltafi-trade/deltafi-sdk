@@ -37,13 +37,10 @@ import { BN } from "@project-serum/anchor";
 export async function createSwapTransaction(
   walletPubkey: PublicKey,
   connection: Connection,
-  inputTokenMintPubkey: PublicKey,
-  outputTokenMintPubkey: PublicKey,
   inputTokenAccountPubkey: PublicKey,
   outputTokenAccountPubkey: PublicKey,
   inputAmount: string,
   minOutputAmount: string = "0",
-  deployment: string = "mainnet-prod",
   deployConfig,
   poolConfig,
   inputTokenConfig,
@@ -98,8 +95,8 @@ export async function createSwapTransaction(
 
   const { swapSourceToken, swapDestinationToken, adminDestinationToken } = (() => {
     if (
-      swapInfo.mintBase.toBase58() === inputTokenMintPubkey.toBase58() &&
-      swapInfo.mintQuote.toBase58() === outputTokenMintPubkey.toBase58()
+      swapInfo.mintBase.toBase58() === inputTokenConfig.mint &&
+      swapInfo.mintQuote.toBase58() === outputTokenConfig.mint
     ) {
       return {
         swapSourceToken: swapInfo.tokenBase,
@@ -107,8 +104,8 @@ export async function createSwapTransaction(
         adminDestinationToken: swapInfo.adminFeeTokenQuote,
       };
     } else if (
-      swapInfo.mintBase.toBase58() === outputTokenMintPubkey.toBase58() &&
-      swapInfo.mintQuote.toBase58() === inputTokenMintPubkey.toBase58()
+      swapInfo.mintBase.toBase58() === outputTokenConfig.mint &&
+      swapInfo.mintQuote.toBase58() === inputTokenConfig.mint
     ) {
       return {
         swapSourceToken: swapInfo.tokenQuote,

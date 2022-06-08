@@ -33,9 +33,6 @@ const runExample = async (keypairFilePath: string, exampleDeployment: string) =>
   const usdcTokenConfig = getTokenConfig(deployConfig, "USDC");
   const usdtTokenConfig = getTokenConfig(deployConfig, "USDT");
 
-  const usdcMint = new PublicKey(poolConfig.mintBase);
-  const usdtMint = new PublicKey(poolConfig.mintQuote);
-
   const keyPair = readKeypair(keypairFilePath);
   const connection = new Connection(clusterApiUrl(deployConfig.network), "confirmed");
 
@@ -44,7 +41,7 @@ const runExample = async (keypairFilePath: string, exampleDeployment: string) =>
     await getOrCreateAssociatedAccountInfo(
       connection,
       keyPair,
-      usdcMint,
+      new PublicKey(usdcTokenConfig.mint),
       keyPair.publicKey,
     )
   ).address;
@@ -52,7 +49,7 @@ const runExample = async (keypairFilePath: string, exampleDeployment: string) =>
     await getOrCreateAssociatedAccountInfo(
       connection,
       keyPair,
-      usdtMint,
+      new PublicKey(usdtTokenConfig.mint),
       keyPair.publicKey,
     )
   ).address;
@@ -63,13 +60,10 @@ const runExample = async (keypairFilePath: string, exampleDeployment: string) =>
     await createSwapTransaction(
       keyPair.publicKey,
       connection,
-      usdcMint,
-      usdtMint,
       usdcTokenAccount,
       usdtTokenAccount,
       "1",
       "0.9",
-      exampleDeployment,
       deployConfig,
       poolConfig,
       usdcTokenConfig,
@@ -94,13 +88,10 @@ const runExample = async (keypairFilePath: string, exampleDeployment: string) =>
     await createSwapTransaction(
       keyPair.publicKey,
       connection,
-      usdtMint,
-      usdcMint,
       usdtTokenAccount,
       usdcTokenAccount,
       "1",
       "0.9",
-      exampleDeployment,
       deployConfig,
       poolConfig,
       usdtTokenConfig,
