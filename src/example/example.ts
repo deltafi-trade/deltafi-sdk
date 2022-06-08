@@ -113,7 +113,28 @@ const runExample = async (keypairFilePath: string, network: string) => {
   }
 };
 
-const getConfig = async () => {};
+const getConfig = async () => {
+  const https = require("https");
+  const options = {
+    hostname: "app.deltafi.trade",
+    port: 443,
+    path: "/api/config",
+    method: "GET",
+  };
+
+  const req = https.request(options, (res) => {
+    res.on("data", (data) => {
+      // pretty print the config json
+      console.log(JSON.stringify(JSON.parse(Buffer.from(data).toString()), null, 2));
+    });
+  });
+
+  req.on("error", (error) => {
+    console.error(error);
+  });
+
+  req.end();
+};
 
 const main = () => {
   const program = new Command();
@@ -125,28 +146,7 @@ const main = () => {
       runExample(option.keypair, option.network);
     });
 
-  program.command("get-config").action(async () => {
-    const https = require("https");
-    const options = {
-      hostname: "app.deltafi.trade",
-      port: 443,
-      path: "/api/config",
-      method: "GET",
-    };
-
-    const req = https.request(options, (res) => {
-      res.on("data", (data) => {
-        // pretty print the config json
-        console.log(JSON.stringify(JSON.parse(Buffer.from(data).toString()), null, 2));
-      });
-    });
-
-    req.on("error", (error) => {
-      console.error(error);
-    });
-
-    req.end();
-  });
+  program.command("get-config").action(getConfig);
 
   program.parse(process.argv);
 };
