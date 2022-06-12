@@ -16,6 +16,7 @@ import {
 } from "./utils";
 import { Command } from "commander";
 import * as https from "https";
+import { getSwapOutResult } from "../calculations/swapOutAmount";
 
 // the example transaction logic
 // this function established 2 transaction, first sell USDC for USDT and second sell USDT for USDC
@@ -55,6 +56,15 @@ const runExample = async (keypairFilePath: string, network: string) => {
       keyPair.publicKey,
     )
   ).address;
+
+  const swapoutResult = await getSwapOutResult(
+    new PublicKey(usdcTokenConfig.mint),
+    new PublicKey(usdtTokenConfig.mint),
+    "1",
+    0.01,
+    connection,
+    deployConfig);
+  console.info(swapoutResult);
 
   // example transaction 1: sell USDC for USDT
   console.info("transaction 1: sell 1 USDC for USDT");
