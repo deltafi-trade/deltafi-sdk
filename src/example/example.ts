@@ -114,7 +114,6 @@ const runExample = async (keypairFilePath: string, network: string) => {
 };
 
 const getConfig = async () => {
-  const https = require("https");
   const options = {
     hostname: "app.deltafi.trade",
     port: 443,
