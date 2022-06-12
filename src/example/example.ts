@@ -96,6 +96,15 @@ const runExample = async (keypairFilePath: string, network: string) => {
 
   // example transaction 2: sell USDT for USDC
   console.info("transaction 2: sell 1 USDT for USDC");
+  const swapoutResult2 = await getSwapOutResult(
+    new PublicKey(usdtTokenConfig.mint),
+    new PublicKey(usdcTokenConfig.mint),
+    "1",
+    0.01,
+    connection,
+    deployConfig);
+  console.info(swapoutResult2);
+
   const { transaction: transactionUSDTforUSDC, userTransferAuthority: tmpAuthorityB } =
     await createSwapTransaction(
       keyPair.publicKey,
