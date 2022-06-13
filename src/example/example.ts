@@ -186,22 +186,22 @@ const doDepositAndWithdraw = async (keypairFilePath: string, network: string) =>
   );
   const lpUser = await program.account.liquidityProvider.fetchNullable(lpPublicKey);
 
-  const depositTransaction = await createDepositTransaction(
-    program,
-    connection,
-    poolConfig,
-    swapInfo,
-    usdcTokenAccount,
-    usdtTokenAccount,
-    keyPair.publicKey,
-    lpUser,
-    new BN(1000000),
-    new BN(1000000),
-  );
-
   try {
+    const { transaction: depositTransaction, userTransferAuthority } = await createDepositTransaction(
+      program,
+      connection,
+      poolConfig,
+      swapInfo,
+      usdcTokenAccount,
+      usdtTokenAccount,
+      keyPair.publicKey,
+      lpUser,
+      new BN(1000000),
+      new BN(1000000),
+    );
+
     const signature = await sendAndConfirmTransaction(connection, depositTransaction, [
-      keyPair,
+      keyPair, userTransferAuthority
     ]);
     console.info("deposit succeeded with signature: " + signature);
   } catch (e) {

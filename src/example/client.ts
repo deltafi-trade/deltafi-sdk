@@ -238,8 +238,6 @@ export async function createDepositTransaction(
     );
   }
 
-  const signers = [userTransferAuthority];
-
   if (lpUser === null) {
     const createLpTransaction = program.transaction.createLiquidityProvider(lpBump, {
       accounts: {
@@ -254,29 +252,8 @@ export async function createDepositTransaction(
     transaction = mergeTransactions([createLpTransaction, transaction]);
   }
 
-  return partialSignTransaction({
-    transaction,
-    feePayer: walletPubkey,
-    signers,
-    connection,
-  });
-}
-
-export async function partialSignTransaction({
-  transaction,
-  feePayer,
-  signers = [],
-  connection,
-}: {
-  transaction: Transaction;
-  feePayer: PublicKey;
-  signers?: Array<Keypair>;
-  connection: Connection;
-}) {
   transaction.recentBlockhash = (await connection.getLatestBlockhash("max")).blockhash;
-  transaction.feePayer = feePayer;
-  if (signers.length > 0) {
-    transaction.partialSign(...signers);
-  }
-  return transaction;
+  transaction.feePayer = walletPubkey;
+
+  return { transaction, userTransferAuthority };
 }
