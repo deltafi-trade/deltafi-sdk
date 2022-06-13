@@ -24,6 +24,11 @@ Deposit to `1` token to `USDC-USDT` pool.
 yarn ts-node src/example/example.ts deposit -k <your_keypair> -n mainnet-beta
 ```
 
+Withdraw to `1` token from `USDC-USDT` pool.
+```
+yarn ts-node src/example/example.ts withdraw -k <your_keypair> -n mainnet-beta
+```
+
 The config in this repo may not be up to date. You can read the latest config with our public api.
 ```
 yarn ts-node src/example/example.ts get-config
