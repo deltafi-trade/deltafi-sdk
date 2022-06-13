@@ -136,7 +136,7 @@ const doSwap = async (keypairFilePath: string, network: string) => {
   }
 };
 
-const doDepositAndWithdraw = async (keypairFilePath: string, network: string) => {
+const doDeposit = async (keypairFilePath: string, network: string) => {
   if (network !== "testnet" && network !== "mainnet-beta") {
     console.error("wrong network!");
     exit(1);
@@ -247,11 +247,11 @@ const main = () => {
     });
 
   program
-    .command("deposit-and-withdraw")
+    .command("deposit")
     .option("-k --keypair <wallet keypair for example transactions>")
     .option("-n --network <mainnet-beta or testnet>")
     .action(async (option) => {
-      doDepositAndWithdraw(option.keypair, option.network);
+      doDeposit(option.keypair, option.network);
     });
 
   program.command("get-config").action(getConfig);
