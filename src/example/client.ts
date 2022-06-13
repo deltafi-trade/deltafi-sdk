@@ -176,13 +176,6 @@ export async function createDepositTransaction(
 ) {
   let baseSourceRef = userTokenBase;
   let quoteSourceRef = userTokenQuote;
-  let createWrappedTokenAccountTransaction: Transaction | undefined;
-  let initializeWrappedTokenAccountTransaction: Transaction | undefined;
-  let closeWrappedTokenAccountTransaction: Transaction | undefined;
-
-  const baseSOL = poolConfig.baseTokenInfo.symbol === "SOL";
-  const quoteSOL = poolConfig.quoteTokenInfo.symbol === "SOL";
-  const tempAccountRefKeyPair = Keypair.generate();
 
   const [lpPublicKey, lpBump] = await PublicKey.findProgramAddress(
     [
@@ -259,16 +252,6 @@ export async function createDepositTransaction(
       },
     });
     transaction = mergeTransactions([createLpTransaction, transaction]);
-  }
-
-  if (baseSOL || quoteSOL) {
-    transaction = mergeTransactions([
-      createWrappedTokenAccountTransaction,
-      initializeWrappedTokenAccountTransaction,
-      transaction,
-      closeWrappedTokenAccountTransaction,
-    ]);
-    signers.push(tempAccountRefKeyPair);
   }
 
   return partialSignTransaction({

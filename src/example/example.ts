@@ -173,7 +173,6 @@ const doDepositAndWithdraw = async (keypairFilePath: string, network: string) =>
     )
   ).address;
 
-
   const poolPubkey = new PublicKey(poolConfig.swapInfo);
   const swapInfo = await program.account.swapInfo.fetch(poolPubkey);
 
@@ -185,7 +184,7 @@ const doDepositAndWithdraw = async (keypairFilePath: string, network: string) =>
     ],
     program.programId,
   );
-  const lpUser = await program.account.swapInfo.fetchNullable(lpPublicKey);
+  const lpUser = await program.account.liquidityProvider.fetchNullable(lpPublicKey);
 
   const depositTransaction = await createDepositTransaction(
     program,
