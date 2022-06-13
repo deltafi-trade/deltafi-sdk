@@ -12,7 +12,8 @@ import { getDeltafiDexV2, makeProvider } from "../anchor/anchor_utils";
 import { DeltafiUser, SwapInfo } from "../anchor/type_definitions";
 import { exponentiate, mergeTransactions } from "./utils";
 import { toBufferLE } from "bigint-buffer";
-import { BN } from "@project-serum/anchor";
+import { web3, BN } from "@project-serum/anchor";
+import { AccountLayout } from "@solana/spl-token";
 
 /**
  * the API function that creates a deltafi swap transaction
@@ -159,4 +160,140 @@ export async function createSwapTransaction(
   transaction.feePayer = walletPubkey;
 
   return { transaction, userTransferAuthority };
+}
+
+export async function createDepositTransaction(
+  program: any,
+  connection: Connection,
+  poolConfig: any,
+  swapInfo: any,
+  userTokenBase: PublicKey,
+  userTokenQuote: PublicKey,
+  walletPubkey: PublicKey,
+  lpUser: any,
+  baseShare: BN,
+  quoteShare: BN,
+) {
+  let baseSourceRef = userTokenBase;
+  let quoteSourceRef = userTokenQuote;
+  let createWrappedTokenAccountTransaction: Transaction | undefined;
+  let initializeWrappedTokenAccountTransaction: Transaction | undefined;
+  let closeWrappedTokenAccountTransaction: Transaction | undefined;
+
+  const baseSOL = poolConfig.baseTokenInfo.symbol === "SOL";
+  const quoteSOL = poolConfig.quoteTokenInfo.symbol === "SOL";
+  const tempAccountRefKeyPair = Keypair.generate();
+
+  const [lpPublicKey, lpBump] = await PublicKey.findProgramAddress(
+    [
+      Buffer.from("LiquidityProvider"),
+      new PublicKey(poolConfig.swapInfo).toBuffer(),
+      walletPubkey.toBuffer(),
+    ],
+    program.programId,
+  );
+
+  const userTransferAuthority = Keypair.generate();
+  let transaction = new Transaction();
+  transaction
+    .add(
+      Token.createApproveInstruction(
+        TOKEN_PROGRAM_ID,
+        baseSourceRef,
+        userTransferAuthority.publicKey,
+        walletPubkey,
+        [],
+        u64.fromBuffer(toBufferLE(BigInt(baseShare.toString()), 8)),
+      ),
+    )
+    .add(
+      Token.createApproveInstruction(
+        TOKEN_PROGRAM_ID,
+        quoteSourceRef,
+        userTransferAuthority.publicKey,
+        walletPubkey,
+        [],
+        u64.fromBuffer(toBufferLE(BigInt(quoteShare.toString()), 8)),
+      ),
+    );
+
+  const depositAccounts = {
+    swapInfo: new PublicKey(poolConfig.swapInfo),
+    userTokenBase: baseSourceRef,
+    userTokenQuote,
+    quoteSourceRef,
+    liquidityProvider: lpPublicKey,
+    tokenBase: swapInfo.tokenBase,
+    tokenQuote: swapInfo.tokenQuote,
+    pythPriceBase: swapInfo.pythPriceBase,
+    pythPriceQuote: swapInfo.pythPriceQuote,
+    userAuthority: userTransferAuthority.publicKey,
+    tokenProgram: token.TOKEN_PROGRAM_ID,
+  };
+
+  if (swapInfo.swapType.stableSwap) {
+    transaction.add(
+      program.transaction.depositToStableSwap(baseShare, quoteShare, new BN(0), new BN(0), {
+        accounts: depositAccounts,
+      }),
+    );
+  } else {
+    transaction.add(
+      program.transaction.depositToNormalSwap(baseShare, quoteShare, new BN(0), new BN(0), {
+        accounts: depositAccounts,
+      }),
+    );
+  }
+
+  const signers = [userTransferAuthority];
+
+  if (lpUser === null) {
+    const createLpTransaction = program.transaction.createLiquidityProvider(lpBump, {
+      accounts: {
+        marketConfig: swapInfo.configKey,
+        swapInfo: new PublicKey(poolConfig.swapInfo),
+        liquidityProvider: lpPublicKey,
+        owner: walletPubkey,
+        systemProgram: web3.SystemProgram.programId,
+        rent: web3.SYSVAR_RENT_PUBKEY,
+      },
+    });
+    transaction = mergeTransactions([createLpTransaction, transaction]);
+  }
+
+  if (baseSOL || quoteSOL) {
+    transaction = mergeTransactions([
+      createWrappedTokenAccountTransaction,
+      initializeWrappedTokenAccountTransaction,
+      transaction,
+      closeWrappedTokenAccountTransaction,
+    ]);
+    signers.push(tempAccountRefKeyPair);
+  }
+
+  return partialSignTransaction({
+    transaction,
+    feePayer: walletPubkey,
+    signers,
+    connection,
+  });
+}
+
+export async function partialSignTransaction({
+  transaction,
+  feePayer,
+  signers = [],
+  connection,
+}: {
+  transaction: Transaction;
+  feePayer: PublicKey;
+  signers?: Array<Keypair>;
+  connection: Connection;
+}) {
+  transaction.recentBlockhash = (await connection.getLatestBlockhash("max")).blockhash;
+  transaction.feePayer = feePayer;
+  if (signers.length > 0) {
+    transaction.partialSign(...signers);
+  }
+  return transaction;
 }

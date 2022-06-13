@@ -6,7 +6,7 @@ import {
   sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import { exit } from "process";
-import { createSwapTransaction } from "./client";
+import { createDepositTransaction, createSwapTransaction } from "./client";
 import {
   getDeploymentConfig,
   getOrCreateAssociatedAccountInfo,
@@ -17,6 +17,8 @@ import {
 import { Command } from "commander";
 import * as https from "https";
 import { getSwapOutResult } from "../calculations/swapOutAmount";
+import { getDeltafiDexV2, makeProvider } from "../anchor/anchor_utils";
+import { AnchorProvider, BN } from "@project-serum/anchor";
 
 // the example transaction logic
 // this function established 2 transaction, first sell USDC for USDT and second sell USDT for USDC
@@ -148,6 +150,11 @@ const doDepositAndWithdraw = async (keypairFilePath: string, network: string) =>
   const keyPair = readKeypair(keypairFilePath);
   const connection = new Connection(clusterApiUrl(deployConfig.network), "confirmed");
 
+  const program = getDeltafiDexV2(
+    new PublicKey(deployConfig.programId),
+    makeProvider(connection, {}),
+  );
+
   // get USDC/USDT token account from the wallet
   const usdcTokenAccount = (
     await getOrCreateAssociatedAccountInfo(
@@ -166,6 +173,42 @@ const doDepositAndWithdraw = async (keypairFilePath: string, network: string) =>
     )
   ).address;
 
+
+  const poolPubkey = new PublicKey(poolConfig.swapInfo);
+  const swapInfo = await program.account.swapInfo.fetch(poolPubkey);
+
+  const [lpPublicKey] = await PublicKey.findProgramAddress(
+    [
+      Buffer.from("LiquidityProvider"),
+      new PublicKey(poolConfig.swapInfo).toBuffer(),
+      keyPair.publicKey.toBuffer(),
+    ],
+    program.programId,
+  );
+  const lpUser = await program.account.swapInfo.fetchNullable(lpPublicKey);
+
+  const depositTransaction = await createDepositTransaction(
+    program,
+    connection,
+    poolConfig,
+    swapInfo,
+    usdcTokenAccount,
+    usdtTokenAccount,
+    keyPair.publicKey,
+    lpUser,
+    new BN(1000000),
+    new BN(1000000),
+  );
+
+  try {
+    const signature = await sendAndConfirmTransaction(connection, depositTransaction, [
+      keyPair,
+    ]);
+    console.info("deposit succeeded with signature: " + signature);
+  } catch (e) {
+    console.error("deposit failed with error: " + e);
+    exit(1);
+  }
 };
 
 const getConfig = async () => {
