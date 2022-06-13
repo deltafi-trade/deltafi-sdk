@@ -171,8 +171,8 @@ export async function createDepositTransaction(
   userTokenQuote: PublicKey,
   walletPubkey: PublicKey,
   lpUser: any,
-  baseShare: BN,
-  quoteShare: BN,
+  baseAmount: BN,
+  quoteAmount: BN,
 ) {
   let baseSourceRef = userTokenBase;
   let quoteSourceRef = userTokenQuote;
@@ -196,7 +196,7 @@ export async function createDepositTransaction(
         userTransferAuthority.publicKey,
         walletPubkey,
         [],
-        u64.fromBuffer(toBufferLE(BigInt(baseShare.toString()), 8)),
+        u64.fromBuffer(toBufferLE(BigInt(baseAmount.toString()), 8)),
       ),
     )
     .add(
@@ -206,7 +206,7 @@ export async function createDepositTransaction(
         userTransferAuthority.publicKey,
         walletPubkey,
         [],
-        u64.fromBuffer(toBufferLE(BigInt(quoteShare.toString()), 8)),
+        u64.fromBuffer(toBufferLE(BigInt(quoteAmount.toString()), 8)),
       ),
     );
 
@@ -226,13 +226,13 @@ export async function createDepositTransaction(
 
   if (swapInfo.swapType.stableSwap) {
     transaction.add(
-      program.transaction.depositToStableSwap(baseShare, quoteShare, new BN(0), new BN(0), {
+      program.transaction.depositToStableSwap(baseAmount, quoteAmount, new BN(0), new BN(0), {
         accounts: depositAccounts,
       }),
     );
   } else {
     transaction.add(
-      program.transaction.depositToNormalSwap(baseShare, quoteShare, new BN(0), new BN(0), {
+      program.transaction.depositToNormalSwap(baseAmount, quoteAmount, new BN(0), new BN(0), {
         accounts: depositAccounts,
       }),
     );
