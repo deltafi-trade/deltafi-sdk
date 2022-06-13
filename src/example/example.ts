@@ -65,7 +65,8 @@ const doSwap = async (keypairFilePath: string, network: string) => {
     "1",
     0.01,
     connection,
-    deployConfig);
+    deployConfig,
+  );
   console.info(swapoutResult);
 
   // example transaction 1: sell USDC for USDT
@@ -104,7 +105,8 @@ const doSwap = async (keypairFilePath: string, network: string) => {
     "1",
     0.01,
     connection,
-    deployConfig);
+    deployConfig,
+  );
   console.info(swapoutResult2);
 
   const { transaction: transactionUSDTforUSDC, userTransferAuthority: tmpAuthorityB } =
@@ -187,21 +189,23 @@ const doDepositAndWithdraw = async (keypairFilePath: string, network: string) =>
   const lpUser = await program.account.liquidityProvider.fetchNullable(lpPublicKey);
 
   try {
-    const { transaction: depositTransaction, userTransferAuthority } = await createDepositTransaction(
-      program,
-      connection,
-      poolConfig,
-      swapInfo,
-      usdcTokenAccount,
-      usdtTokenAccount,
-      keyPair.publicKey,
-      lpUser,
-      new BN(1000000),
-      new BN(1000000),
-    );
+    const { transaction: depositTransaction, userTransferAuthority } =
+      await createDepositTransaction(
+        program,
+        connection,
+        poolConfig,
+        swapInfo,
+        usdcTokenAccount,
+        usdtTokenAccount,
+        keyPair.publicKey,
+        lpUser,
+        new BN(1000000),
+        new BN(1000000),
+      );
 
     const signature = await sendAndConfirmTransaction(connection, depositTransaction, [
-      keyPair, userTransferAuthority
+      keyPair,
+      userTransferAuthority,
     ]);
     console.info("deposit succeeded with signature: " + signature);
   } catch (e) {
