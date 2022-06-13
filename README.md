@@ -19,12 +19,12 @@ You can also use your own keypair on mainnet-beta to swap `1` token between `USD
 yarn ts-node src/example/example.ts swap -k <your_keypair> -n mainnet-beta
 ```
 
-Deposit to `1` token to `USDC-USDT` pool.
+Deposit `1` token to `USDC-USDT` pool.
 ```
 yarn ts-node src/example/example.ts deposit -k <your_keypair> -n mainnet-beta
 ```
 
-Withdraw to `1` token from `USDC-USDT` pool.
+Withdraw `1` token from `USDC-USDT` pool.
 ```
 yarn ts-node src/example/example.ts withdraw -k <your_keypair> -n mainnet-beta
 ```
