@@ -1,7 +1,6 @@
 import { clusterApiUrl, Connection, PublicKey, sendAndConfirmTransaction } from "@solana/web3.js";
 import { exit } from "process";
-import { createDepositTransaction, createWithdrawTransaction } from "./client";
-import { createSwapTransaction, getDeltafiUser } from "../anchor/transaction_utils";
+import { createSwapTransaction, getDeltafiUser, createWithdrawTransaction, createDepositTransaction } from "../anchor/transaction_utils";
 import {
   exponentiate,
   getDeploymentConfig,
@@ -212,11 +211,10 @@ const doDeposit = async (keypairFilePath: string, network: string) => {
   const lpUser = await program.account.liquidityProvider.fetchNullable(lpPublicKey);
 
   try {
-    const { transaction: depositTransaction, userTransferAuthority } =
+    const { transaction, signers } =
       await createDepositTransaction(
-        program,
-        connection,
         poolConfig,
+        program,
         swapInfo,
         usdcTokenAccount,
         usdtTokenAccount,
@@ -224,11 +222,13 @@ const doDeposit = async (keypairFilePath: string, network: string) => {
         lpUser,
         new BN(1000000),
         new BN(1000000),
+        new BN(0),
+        new BN(0),
       );
 
-    const signature = await sendAndConfirmTransaction(connection, depositTransaction, [
+    const signature = await sendAndConfirmTransaction(connection, transaction, [
+      ...signers,
       keyPair,
-      userTransferAuthority,
     ]);
     console.info("deposit succeeded with signature: " + signature);
   } catch (e) {
@@ -280,19 +280,20 @@ const doWithdraw = async (keypairFilePath: string, network: string) => {
   const swapInfo = await program.account.swapInfo.fetch(poolPubkey);
 
   try {
-    const withdrawTransaction = await createWithdrawTransaction(
-      program,
-      connection,
+    const { transaction } = await createWithdrawTransaction(
       poolConfig,
+      program,
       swapInfo,
       usdcTokenAccount,
       usdtTokenAccount,
       keyPair.publicKey,
       new BN(1000000),
       new BN(1000000),
+      new BN(0),
+      new BN(0),
     );
 
-    const signature = await sendAndConfirmTransaction(connection, withdrawTransaction, [keyPair]);
+    const signature = await sendAndConfirmTransaction(connection, transaction, [keyPair]);
     console.info("withdraw succeeded with signature: " + signature);
   } catch (e) {
     console.error("withdraw failed with error: " + e);
