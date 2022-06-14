@@ -1,6 +1,11 @@
 import { clusterApiUrl, Connection, PublicKey, sendAndConfirmTransaction } from "@solana/web3.js";
 import { exit } from "process";
-import { createSwapTransaction, getDeltafiUser, createWithdrawTransaction, createDepositTransaction } from "../anchor/transaction_utils";
+import {
+  createSwapTransaction,
+  getDeltafiUser,
+  createWithdrawTransaction,
+  createDepositTransaction,
+} from "../anchor/transaction_utils";
 import {
   exponentiate,
   getDeploymentConfig,
@@ -211,20 +216,19 @@ const doDeposit = async (keypairFilePath: string, network: string) => {
   const lpUser = await program.account.liquidityProvider.fetchNullable(lpPublicKey);
 
   try {
-    const { transaction, signers } =
-      await createDepositTransaction(
-        poolConfig,
-        program,
-        swapInfo,
-        usdcTokenAccount,
-        usdtTokenAccount,
-        keyPair.publicKey,
-        lpUser,
-        new BN(1000000),
-        new BN(1000000),
-        new BN(0),
-        new BN(0),
-      );
+    const { transaction, signers } = await createDepositTransaction(
+      poolConfig,
+      program,
+      swapInfo,
+      usdcTokenAccount,
+      usdtTokenAccount,
+      keyPair.publicKey,
+      lpUser,
+      new BN(1000000),
+      new BN(1000000),
+      new BN(0),
+      new BN(0),
+    );
 
     const signature = await sendAndConfirmTransaction(connection, transaction, [
       ...signers,
