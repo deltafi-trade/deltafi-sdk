@@ -230,6 +230,9 @@ const doDeposit = async (keypairFilePath: string, network: string) => {
       new BN(0),
     );
 
+    transaction.recentBlockhash = (await connection.getLatestBlockhash("max")).blockhash;
+    transaction.feePayer = keyPair.publicKey;
+
     const signature = await sendAndConfirmTransaction(connection, transaction, [
       ...signers,
       keyPair,
@@ -296,6 +299,9 @@ const doWithdraw = async (keypairFilePath: string, network: string) => {
       new BN(0),
       new BN(0),
     );
+
+    transaction.recentBlockhash = (await connection.getLatestBlockhash("max")).blockhash;
+    transaction.feePayer = keyPair.publicKey;
 
     const signature = await sendAndConfirmTransaction(connection, transaction, [keyPair]);
     console.info("withdraw succeeded with signature: " + signature);
