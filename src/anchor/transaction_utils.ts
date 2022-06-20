@@ -29,9 +29,9 @@ export async function getDeltafiUser(program, marketConfig, walletPubkey) {
   return program.account.deltafiUser.fetchNullable(deltafiUserPubkey);
 }
 
-export function createNativeSOLHandlingTransactions(
-  tempAccountRefPubkey: PublicKey,
-  tmpAccountLamport: number,
+export function createWrapSOLTransactions(
+  wrapAccountPubkey: PublicKey,
+  lamports: number,
   walletPubkey: PublicKey,
 ): {
   createWrappedTokenAccountTransaction: Transaction;
@@ -42,8 +42,8 @@ export function createNativeSOLHandlingTransactions(
   createWrappedTokenAccountTransaction.add(
     SystemProgram.createAccount({
       fromPubkey: walletPubkey,
-      newAccountPubkey: tempAccountRefPubkey,
-      lamports: tmpAccountLamport,
+      newAccountPubkey: wrapAccountPubkey,
+      lamports,
       space: AccountLayout.span,
       programId: TOKEN_PROGRAM_ID,
     }),
@@ -54,7 +54,7 @@ export function createNativeSOLHandlingTransactions(
     Token.createInitAccountInstruction(
       TOKEN_PROGRAM_ID,
       NATIVE_MINT,
-      tempAccountRefPubkey,
+      wrapAccountPubkey,
       walletPubkey,
     ),
   );
@@ -63,7 +63,7 @@ export function createNativeSOLHandlingTransactions(
   closeWrappedTokenAccountTransaction.add(
     Token.createCloseAccountInstruction(
       TOKEN_PROGRAM_ID,
-      tempAccountRefPubkey,
+      wrapAccountPubkey,
       walletPubkey,
       walletPubkey,
       [],
@@ -102,25 +102,25 @@ export async function createSwapTransaction(
   let userSourceTokenRef = inputTokenPubkey;
   let userDestinationTokenRef = outputTokenPubkey;
 
-  const tempAccountRefKeyPair = Keypair.generate();
+  const wrappedSolRefKeyPair = Keypair.generate();
   const createTokenAccountCost =
     await program.provider.connection.getMinimumBalanceForRentExemption(AccountLayout.span);
   let nativeSOLHandlingTransactions = null;
   if (buySol || sellSol) {
-    let tmpAccountLamport = buySol
+    const wrappedSOLLamport = buySol
       ? createTokenAccountCost
       : inputAmount.toNumber() + createTokenAccountCost;
 
-    nativeSOLHandlingTransactions = createNativeSOLHandlingTransactions(
-      tempAccountRefKeyPair.publicKey,
-      tmpAccountLamport,
+    nativeSOLHandlingTransactions = createWrapSOLTransactions(
+      wrappedSolRefKeyPair.publicKey,
+      wrappedSOLLamport,
       walletPubkey,
     );
 
     if (buySol) {
-      userDestinationTokenRef = tempAccountRefKeyPair.publicKey;
+      userDestinationTokenRef = wrappedSolRefKeyPair.publicKey;
     } else {
-      userSourceTokenRef = tempAccountRefKeyPair.publicKey;
+      userSourceTokenRef = wrappedSolRefKeyPair.publicKey;
     }
   }
 
@@ -222,7 +222,7 @@ export async function createSwapTransaction(
       transaction,
       closeWrappedTokenAccountTransaction,
     ]);
-    signers.push(tempAccountRefKeyPair);
+    signers.push(wrappedSolRefKeyPair);
   }
 
   return { transaction, signers };
