@@ -232,9 +232,8 @@ const doDeposit = async (keypairFilePath: string, network: string, poolName: str
   const baseAmount = new BigNumber(1).div(estimatedPrice[poolConfig.base]);
   const quoteAmount = new BigNumber(1).div(estimatedPrice[poolConfig.quote]);
   console.info(
-    `Depositing ${baseAmount.toString()} ${baseTokenConfig.symbol} and ${quoteAmount.toString()} ${
-      quoteTokenConfig.symbol
-    }`,
+    `Depositing ${baseAmount.toString()} ${baseTokenConfig.symbol} and ` +
+    `${quoteAmount.toString()} ${quoteTokenConfig.symbol}`,
   );
   try {
     const { transaction, signers } = await createDepositTransaction(
@@ -265,18 +264,18 @@ const doDeposit = async (keypairFilePath: string, network: string, poolName: str
   }
 };
 
-const doWithdraw = async (keypairFilePath: string, network: string) => {
+const doWithdraw = async (keypairFilePath: string, network: string, poolName: string) => {
   if (network !== "testnet" && network !== "mainnet-beta") {
     console.error("wrong network!");
     exit(1);
   }
 
   const deployConfig = getDeploymentConfig(network === "mainnet-beta" ? "mainnet-prod" : "testnet");
-  const poolConfig = getPoolConfig(deployConfig, "USDC-USDT");
+  const poolConfig = getPoolConfig(deployConfig, poolName);
   console.info("pool config:", poolConfig);
 
-  const usdcTokenConfig = getTokenConfig(deployConfig, "USDC");
-  const usdtTokenConfig = getTokenConfig(deployConfig, "USDT");
+  const baseTokenConfig = getTokenConfig(deployConfig, poolConfig.base);
+  const quoteTokenConfig = getTokenConfig(deployConfig, poolConfig.quote);
 
   const keyPair = readKeypair(keypairFilePath);
   const connection = new Connection(clusterApiUrl(deployConfig.network), "confirmed");
@@ -286,20 +285,19 @@ const doWithdraw = async (keypairFilePath: string, network: string) => {
     makeProvider(connection, {}),
   );
 
-  // get USDC/USDT token account from the wallet
-  const usdcTokenAccount = (
+  const baseTokenAccount = (
     await getOrCreateAssociatedAccountInfo(
       connection,
       keyPair,
-      new PublicKey(usdcTokenConfig.mint),
+      new PublicKey(baseTokenConfig.mint),
       keyPair.publicKey,
     )
   ).address;
-  const usdtTokenAccount = (
+  const quoteTokenAccount = (
     await getOrCreateAssociatedAccountInfo(
       connection,
       keyPair,
-      new PublicKey(usdtTokenConfig.mint),
+      new PublicKey(quoteTokenConfig.mint),
       keyPair.publicKey,
     )
   ).address;
@@ -307,16 +305,33 @@ const doWithdraw = async (keypairFilePath: string, network: string) => {
   const poolPubkey = new PublicKey(poolConfig.swapInfo);
   const swapInfo = await program.account.swapInfo.fetch(poolPubkey);
 
+  const [lpPublicKey] = await PublicKey.findProgramAddress(
+    [
+      Buffer.from("LiquidityProvider"),
+      new PublicKey(poolConfig.swapInfo).toBuffer(),
+      keyPair.publicKey.toBuffer(),
+    ],
+    program.programId,
+  );
+  const lpUser = await program.account.liquidityProvider.fetchNullable(lpPublicKey);
+
+  const baseShare = lpUser.baseShare.toNumber() - lpUser.stakedBaseShare.toNumber();
+  const quoteShare = lpUser.quoteShare.toNumber() - lpUser.stakedBaseShare.toNumber();
+  console.info(
+    `Withdrawing ${baseShare} ${baseTokenConfig.symbol} and ` +
+    `${quoteShare} ${quoteTokenConfig.symbol}`,
+  );
+
   try {
     const { transaction } = await createWithdrawTransaction(
       poolConfig,
       program,
       swapInfo,
-      usdcTokenAccount,
-      usdtTokenAccount,
+      baseTokenAccount,
+      quoteTokenAccount,
       keyPair.publicKey,
-      new BN(1000000),
-      new BN(1000000),
+      new BN(baseShare),
+      new BN(quoteShare),
       new BN(0),
       new BN(0),
     );
