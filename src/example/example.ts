@@ -315,6 +315,7 @@ const doWithdraw = async (keypairFilePath: string, network: string, poolName: st
   );
   const lpUser = await program.account.liquidityProvider.fetchNullable(lpPublicKey);
 
+  // Withdraw all the available shares
   const baseShare = lpUser.baseShare.toNumber() - lpUser.stakedBaseShare.toNumber();
   const quoteShare = lpUser.quoteShare.toNumber() - lpUser.stakedBaseShare.toNumber();
   console.info(
