@@ -233,7 +233,7 @@ const doDeposit = async (keypairFilePath: string, network: string, poolName: str
   const quoteAmount = new BigNumber(1).div(estimatedPrice[poolConfig.quote]);
   console.info(
     `Depositing ${baseAmount.toString()} ${baseTokenConfig.symbol} and ` +
-    `${quoteAmount.toString()} ${quoteTokenConfig.symbol}`,
+      `${quoteAmount.toString()} ${quoteTokenConfig.symbol}`,
   );
   try {
     const { transaction, signers } = await createDepositTransaction(
@@ -319,11 +319,11 @@ const doWithdraw = async (keypairFilePath: string, network: string, poolName: st
   const quoteShare = lpUser.quoteShare.toNumber() - lpUser.stakedBaseShare.toNumber();
   console.info(
     `Withdrawing ${baseShare} ${baseTokenConfig.symbol} and ` +
-    `${quoteShare} ${quoteTokenConfig.symbol}`,
+      `${quoteShare} ${quoteTokenConfig.symbol}`,
   );
 
   try {
-    const { transaction } = await createWithdrawTransaction(
+    const { transaction, signers } = await createWithdrawTransaction(
       poolConfig,
       program,
       swapInfo,
@@ -339,7 +339,10 @@ const doWithdraw = async (keypairFilePath: string, network: string, poolName: st
     transaction.recentBlockhash = (await connection.getLatestBlockhash("max")).blockhash;
     transaction.feePayer = keyPair.publicKey;
 
-    const signature = await sendAndConfirmTransaction(connection, transaction, [keyPair]);
+    const signature = await sendAndConfirmTransaction(connection, transaction, [
+      ...signers,
+      keyPair,
+    ]);
     console.info("withdraw succeeded with signature: " + signature);
   } catch (e) {
     console.error("withdraw failed with error: " + e);
@@ -393,8 +396,9 @@ const main = () => {
     .command("withdraw")
     .option("-k --keypair <wallet keypair for example transactions>")
     .option("-n --network <mainnet-beta or testnet>")
+    .option("--pool <pool name>")
     .action(async (option) => {
-      doWithdraw(option.keypair, option.network);
+      doWithdraw(option.keypair, option.network, option.pool || "USDC-USDT");
     });
 
   program.command("get-config").action(getConfig);
